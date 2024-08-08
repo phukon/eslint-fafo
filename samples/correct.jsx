@@ -6,7 +6,7 @@ class MyComponent extends React.Component {
     super(props);
     this.state = {
       message: 'Hello, World!',
-    };
+    }
   }
 
   handleClick = () => {

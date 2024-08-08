@@ -9,8 +9,8 @@ export default [
   pluginReact.configs.flat.recommended,
   {
     rules: {
-      'no-unused-vars': 'error',
-      'no-undef': 'warn',
+      'no-unused-vars': 'off',
+      'no-undef': 'error',
     },
   },
 ];
