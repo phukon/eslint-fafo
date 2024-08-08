@@ -7,7 +7,7 @@ const path = require('path');
     const eslint = new ESLint();
     const results = await eslint.lintFiles(['samples/**/*.jsx']);
     const transformedData = results.map(({ source, ...rest }) => rest);
-    const outputFilePath = path.join(__dirname, 'transformedData.json');
+    const outputFilePath = path.join(__dirname, 'eslintLog.json');
     const transformedDataString = JSON.stringify(transformedData, null, 2);
 
     if (results.some((result) => result.errorCount > 0)) {
@@ -25,6 +25,13 @@ const path = require('path');
       });
     } else {
       console.log('No ESLint errors found.');
+      fs.writeFile(outputFilePath, transformedDataString, (err) => {
+        if (err) {
+          console.error('Error writing file:', err);
+        } else {
+          console.log(`Transformed data written to ${outputFilePath}`);
+        }
+      });
     }
   } catch (error) {
     console.error('Unexpected error:', error);
