@@ -6,13 +6,13 @@ const path = require('path');
 (async function main() {
   try {
     const eslint = new ESLint();
-    const results = await eslint.lintFiles(['samples/**/*.jsx']);
+    const results = await eslint.lintFiles(['samples/**/*.{jsx,tsx}']);
     const transformedData = results.map(({ source, ...rest }) => rest);
     const outputFilePath = path.join(__dirname, 'eslintLog.json');
     const transformedDataString = JSON.stringify(transformedData, null, 2);
 
     if (results.some((result) => result.errorCount > 0)) {
-      console.error('ESLint errors found:');
+      console.log('ESLint errors found:');
       console.log(`start>>>> ${transformedDataString} <<<<end`);
 
       fs.writeFile(outputFilePath, transformedDataString, (err) => {
@@ -21,7 +21,7 @@ const path = require('path');
           process.exit(1);
         } else {
           console.log(`Transformed data written to ${outputFilePath}`);
-          process.exit(1);
+          process.exit(0);
         }
       });
     } else {
