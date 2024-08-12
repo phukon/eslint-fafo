@@ -1,367 +1,525 @@
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
-import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import mixpanel from 'mixpanel-browser';
-import { useEffect, useRef, useState } from 'react';
-import { AiOutlineVideoCameraAdd } from 'react-icons/ai';
-import { FiSearch } from 'react-icons/fi';
-import { IoIosSearch } from 'react-icons/io';
-import { RxCross1 } from 'react-icons/rx';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
-import avatar from '../img/avatar.png';
-import Logo from '../img/logo1.png';
-import Logo2 from '../img/logo2.png';
-import AccountPop from './AccountPop';
-import Signin from './Signin';
-import Signup from './Signup';
-//MUI Icons
+import { useNavigate } from 'react-router-dom';
+import LeftPanel from './LeftPanel';
+import Navbar from './Navbar';
 import Skeleton, {SkeletonTheme} from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-import '../Css/navbar.css'
-function Navbar() {
+import '../Css/browse.css'
+import '../Css/theme.css'
+function Browse() {
  const navigate = useNavigate()
  const backendURL = 'https://youtube-iterate-ai.vercel.app'
  // const backendURL = "https://youtube-iterate-ai.vercel.app";
- const {data} = useParams()
- const [data2, setData] = useState(data)
- const [isbtnClicked, setisbtnClicked] = useState(false)
- const [isSwitch, setisSwitched] = useState(false)
- const [profilePic, setProfilePic] = useState()
- const [showPop, setShowPop] = useState(false)
- const [searchedData, setSearchedData] = useState()
+ const [thumbnails, setThumbnails] = useState([])
+ const [Titles, setTitles] = useState()
+ const [uploader, setUploader] = useState()
+ const [ProfilePic, setProfilePic] = useState()
+ const [duration, setDuration] = useState()
+ const [VideoID, setVideoID] = useState()
+ const [Visibility, setVisibility] = useState()
+ const [menuClicked, setMenuClicked] = useState(() => {
+  const menu = localStorage.getItem('menuClicked')
+  return menu ? JSON.parse(menu) : false
+ })
+ const [VideoViews, setVideoViews] = useState()
+ const [VideoData, setVideoData] = useState([])
+ const [TagsSelected, setTagsSelected] = useState('All')
+ const [publishDate, setPublishDate] = useState()
+ const [FilteredVideos, setFilteredVideos] = useState([])
  const [loading, setLoading] = useState(true)
- const [newSearch, setNewSearch] = useState(false)
  const [theme, setTheme] = useState(() => {
   const Dark = localStorage.getItem('Dark')
   return Dark ? JSON.parse(Dark) : true
  })
- const profileRef = useRef()
- const searchRef = useRef()
- const User = useSelector(state => state?.user?.user)
- const {user} = User
+ const user = useSelector(state => state.user.user)
  useEffect(() => {
-  if (User.success) {
-   setisbtnClicked(false)
-  }
- }, [user])
- useEffect(() => {
-  const handler = e => {
-   if (!profileRef?.current?.contains(e.target)) {
-    setShowPop(false)
-   }
-  }
-  document?.addEventListener('mousedown', handler)
+  window.scrollTo(0, 0)
  }, [])
  useEffect(() => {
-  const handler = e => {
-   if (!searchRef?.current?.contains(e.target)) {
-    setNewSearch(false)
+  const handleMenuButtonClick = () => {
+   setMenuClicked(prevMenuClicked => !prevMenuClicked)
+  }
+  const menuButton = document.querySelector('.menu')
+  if (menuButton) {
+   menuButton?.addEventListener('click', handleMenuButtonClick)
+  }
+  return () => {
+   if (menuButton) {
+    menuButton?.removeEventListener('click', handleMenuButtonClick)
    }
   }
-  document?.addEventListener('mousedown', handler)
  }, [])
  useEffect(() => {
-  const getData = async () => {
+  const handleMenuButtonClick = () => {
+   setMenuClicked(prevMenuClicked => !prevMenuClicked)
+  }
+  const menuButton = document.querySelector('.menu-light')
+  if (menuButton) {
+   menuButton?.addEventListener('click', handleMenuButtonClick)
+  }
+  return () => {
+   if (menuButton) {
+    menuButton.removeEventListener('click', handleMenuButtonClick)
+   }
+  }
+ }, [])
+ useEffect(() => {
+  localStorage.setItem('menuClicked', JSON.stringify(menuClicked))
+ }, [menuClicked])
+ const Tags = ['All', 'Artificial Intelligence', 'Comedy', 'Gaming', 'Vlog', 'Beauty', 'Travel', 'Food', 'Fashion']
+ useEffect(() => {
+  const getVideos = async () => {
    try {
-    if (user?.email) {
-     const response = await fetch(`${backendURL}/getuserimage/${user?.email}`)
-     const {channelIMG} = await response.json()
-     setProfilePic(channelIMG)
-    }
+    const response = await fetch(`${backendURL}/getvideos`)
+    const {thumbnailURLs, titles, Uploader, Profile, Duration, videoID, views, uploadDate, Visibility, videoData} = await response.json()
+    setThumbnails(thumbnailURLs)
+    setTitles(titles)
+    setUploader(Uploader)
+    setProfilePic(Profile)
+    setDuration(Duration)
+    setVideoID(videoID)
+    setVideoViews(views)
+    setPublishDate(uploadDate)
+    setVisibility(Visibility)
+    setVideoData(videoData)
    } catch (error) {
     // console.log(error.message);
    }
   }
-  getData()
- }, [user?.email])
+  getVideos()
+ }, [])
+ useEffect(() => {
+  if (TagsSelected !== 'All') {
+   const tagsSelectedLower = TagsSelected.toLowerCase()
+   const filteredVideos = VideoData.flatMap(item => item.VideoData.filter(element => element.Tags.toLowerCase().includes(tagsSelectedLower) || element.Title.toLowerCase().includes(tagsSelectedLower)))
+   setFilteredVideos(filteredVideos)
+  } else {
+   setFilteredVideos([])
+  }
+ }, [TagsSelected, VideoData])
  useEffect(() => {
   setTimeout(() => {
    setLoading(false)
-  }, 2500)
+  }, 3600)
  }, [])
- const handleSearch = e => {
-  setSearchedData(e?.target?.value)
-  setData(e?.target?.value)
-  mixpanel.track('searched', {'search string': searchedData})
- }
- const handleKeyPress = e => {
-  if (e.key === 'Enter' && searchedData) {
-   navigate(`/results/${searchedData}`)
+ useEffect(() => {
+  if (theme === false && !window.location.href.includes('/studio')) {
+   document.body.style.backgroundColor = 'white'
+  } else if (theme === true && !window.location.href.includes('/studio')) {
+   document.body.style.backgroundColor = '0f0f0f'
+  }
+ }, [theme])
+ //UPDATE VIEWS
+
+ const updateViews = async id => {
+  try {
+   const response = await fetch(`${backendURL}/updateview/${id}`, {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json'
+    }
+   })
+   await response.json()
+  } catch (error) {
+   // console.log(error.message);
   }
  }
  return (
   <>
-   <div className={theme === true ? 'navbar' : 'navbar light-mode'}>
-    <div className="left-bar">
-     <MenuRoundedIcon
-      className={theme ? 'menu' : 'menu-light'}
-      fontSize="large"
-      style={{
-       color: theme ? 'white' : 'black'
-      }}
-     />
-     <img
-      src={theme ? Logo : Logo2}
-      alt="logo"
-      loading="lazy"
-      className="youtubeLogo"
-      onClick={() => {
-       navigate('/')
-      }}
-     />
-    </div>
-    <div className="middle-bar">
-     <div className={theme ? 'search' : 'search light-mode light-border'}>
-      <input
-       type="text"
-       placeholder="Type to search"
-       id={theme ? 'searchType' : 'searchType-light-mode'}
-       value={data2 ? data2 : searchedData}
-       onChange={handleSearch}
-       // onKeyDown={handleKeyPress}
-      />
-      <IoIosSearch
-       className={theme ? 'search-icon' : 'search-light-icon'}
-       fontSize="28px"
-       style={{
-        color: theme ? 'rgb(160, 160, 160)' : 'black'
-       }}
-       onClick={() => {
-        if (searchedData) {
-         navigate(`/results/${searchedData}`)
-        }
-       }}
-      />
-     </div>
-    </div>
+   <Navbar />
+   <LeftPanel />
+   <SkeletonTheme baseColor={theme ? '#353535' : '#aaaaaa'} highlightColor={theme ? '#444' : '#b6b6b6'}>
     <div
-     className="right-bar"
+     className={theme ? 'browse' : 'browse light-mode'}
      style={
-      User.success
+      loading === true
        ? {
-          justifyContent: 'space-evenly',
-          paddingRight: '0px'
+          display: 'flex'
          }
        : {
-          justifyContent: 'space-evenly',
-          paddingRight: '25px'
+          display: 'none'
          }
      }
     >
-     <FiSearch fontSize="24px" color={theme ? '#aaa' : 'black'} className="second-search" />
-
-     <AiOutlineVideoCameraAdd
-      className={theme ? 'icon-btns videocreate' : 'video-light'}
-      fontSize="24px"
-      style={{
-       color: theme ? 'white' : 'black'
-      }}
-      onClick={() => {
-       mixpanel.track('studio_clicked', {
-        user: user?.email
-       })
-       if (User.success) {
-        navigate('/studio')
-       } else {
-        setisbtnClicked(true)
-        document.body.classList.add('bg-css')
-       }
-      }}
-     />
-
-     <button onClick={(e) => { mixpanel.track('sss'); if (isbtnClicked === false) { setisbtnClicked(true); document.body.classList.add('bg-css'); } else { setisbtnClicked(false); document.body.classList.remove('bg-css'); }}} className={theme ? 'signin' : 'signin signin-light'} style={User.success ? {display: 'none'} : {display: 'flex'}}
-      <AccountCircleOutlinedIcon
-       fontSize="medium"
-       style={{
-        color: 'rgb(0, 162, 255)'
-       }}
-       className="user-avatar"
-      />
-      <p>Signin</p>
-     </button>
-     <SkeletonTheme baseColor={theme ? '#353535' : '#aaaaaa'} highlightColor={theme ? '#444' : '#b6b6b6'}>
-      <div
-       className="navimg"
-       style={
-        loading === true && User.success
-         ? {
-            visibility: 'visible'
-           }
-         : {
-            visibility: 'hidden',
-            display: 'none'
-           }
-       }
-      >
-       <Skeleton
-        count={1}
-        width={42}
-        height={42}
-        style={{
-         borderRadius: '100%'
-        }}
-        className="sk-profile"
-       />
-      </div>
-     </SkeletonTheme>
-     <img
-      src={profilePic ? profilePic : avatar}
-      alt="user profile pic"
-      loading="lazy"
-      className="profile-pic"
+     <div
+      className={menuClicked === true ? `browse-data ${theme ? '' : 'light-mode'}` : `browse-data2 ${theme ? '' : 'light-mode'}`}
       style={
-       User.success && loading === false
+       menuClicked === false
         ? {
-           display: 'block'
+           left: '74px'
           }
         : {
-           display: 'none'
+           left: '250px'
           }
       }
-      onClick={() => {
-       if (showPop === false) {
-        setShowPop(true)
-       } else {
-        setShowPop(false)
+     >
+      <div className={theme ? 'popular-categories' : 'popular-categories light-mode'}>
+       {Tags.map((element, index) => {
+        return (
+         <div className={TagsSelected === element ? `top-tags ${theme ? 'tag-color' : 'tag-color-light'}` : `top-tags ${theme ? '' : 'tagcolor-newlight'}`} key={index}>
+          <p
+           onClick={() => {
+            setTagsSelected(`${element}`)
+           }}
+          >
+           {element}
+          </p>
+         </div>
+        )
+       })}
+      </div>
+      <div
+       className="video-section"
+       style={{
+        marginLeft: menuClicked ? '40px' : '40px'
+       }}
+      >
+       <div className="uploaded-videos">
+        {Array.from({
+         length: 16
+        }).map((_, index) => (
+         <>
+          <div className="video-data">
+           <Skeleton
+            key={index}
+            count={1}
+            width={330}
+            height={186}
+            style={{
+             borderRadius: '12px'
+            }}
+            className="sk-browse-vid"
+           />
+           <div className="channel-basic-data">
+            <Skeleton
+             key={index}
+             count={1}
+             width={40}
+             height={40}
+             style={{
+              borderRadius: '100%',
+              marginTop: '40px'
+             }}
+             className="sk-browse-profile"
+            />
+            <Skeleton
+             key={index}
+             count={2}
+             width={250}
+             height={15}
+             style={{
+              position: 'relative',
+              top: '40px',
+              left: '15px'
+             }}
+             className="sk-browse-title"
+            />
+           </div>
+          </div>
+         </>
+        ))}
+       </div>
+      </div>
+     </div>
+    </div>
+   </SkeletonTheme>
+   <div
+    className={theme ? 'browse' : 'browse light-mode'}
+    style={
+     loading === true
+      ? {
+         visibility: 'hidden',
+         display: 'none'
+        }
+      : {
+         visibility: 'visible',
+         display: 'flex'
+        }
+    }
+   >
+    <div
+     className={menuClicked === true ? `browse-data ${theme ? '' : 'light-mode'}` : `browse-data2 ${theme ? '' : 'light-mode'}`}
+     style={
+      menuClicked === false
+       ? {
+          left: '74px '
+         }
+       : {
+          left: '250px '
+         }
+     }
+    >
+     <div className={theme ? 'popular-categories' : 'popular-categories light-mode'}>
+      {Tags.map((element, index) => {
+       return (
+        <div className={TagsSelected === element ? `top-tags ${theme ? 'tag-color' : 'tag-color-light'}` : `top-tags ${theme ? '' : 'tagcolor-newlight'}`} key={index}>
+         <p
+          onClick={() => {
+           setTagsSelected(element)
+          }}
+         >
+          {element}
+         </p>
+        </div>
+       )
+      })}
+     </div>
+
+     <div
+      className="video-section"
+      style={{
+       marginLeft: menuClicked ? '40px' : '40px'
+      }}
+     >
+      <div
+       className="uploaded-videos"
+       style={
+        menuClicked === true
+         ? {
+            paddingRight: '50px',
+            display: TagsSelected === 'All' ? 'grid' : 'none'
+           }
+         : {
+            paddingRight: '0px',
+            display: TagsSelected === 'All' ? 'grid' : 'none'
+           }
        }
-      }}
-     />
-    </div>
-   </div>
-   <div
-    className={theme ? 'auth-popup' : 'auth-popup light-mode text-light-mode'}
-    style={
-     isbtnClicked === true
-      ? {
-         display: 'block'
-        }
-      : {
-         display: 'none'
-        }
-    }
-   >
-    <ClearRoundedIcon
-     onClick={() => {
-      if (isbtnClicked === false) {
-       setisbtnClicked(true)
-      } else {
-       setisbtnClicked(false)
-       setisSwitched(false)
-       document.body.classList.remove('bg-css')
-      }
-     }}
-     className="cancel"
-     fontSize="large"
-     style={{
-      color: 'gray'
-     }}
-    />
-    <div
-     className="signup-last"
-     style={
-      isSwitch === false
-       ? {
-          display: 'block'
-         }
-       : {
-          display: 'none'
-         }
-     }
-    >
-     <Signup />
-     <div className="already">
-      <p>Already have an account?</p>
-      <p
-       onClick={() => {
-        if (isSwitch === false) {
-         setisSwitched(true)
-        } else {
-         setisSwitched(false)
-        }
-       }}
       >
-       Signin
-      </p>
-     </div>
-    </div>
-    <div
-     className="signin-last"
-     style={
-      isSwitch === true
-       ? {
-          display: 'block'
-         }
-       : {
-          display: 'none'
-         }
-     }
-    >
-     <Signin setisbtnClicked={setisbtnClicked} close={isbtnClicked} switch={isSwitch} />
-     <div className="already">
-      <p>Don&apos;t have an account?</p>
-      <p
-       onClick={() => {
-        if (isSwitch === false) {
-         setisSwitched(true)
-        } else {
-         setisSwitched(false)
-        }
-       }}
+       {thumbnails &&
+        thumbnails.length > 0 &&
+        thumbnails.map((element, index) => {
+         return (
+          <div
+           className="video-data"
+           key={index}
+           style={
+            Visibility[index] === 'Public'
+             ? {
+                display: 'block'
+               }
+             : {
+                display: 'none'
+               }
+           }
+           onClick={() => {
+            if (user?.success) {
+             updateViews(VideoID[index])
+             setTimeout(() => {
+              navigate(`/video/${VideoID[index]}`)
+             }, 400)
+            }
+            navigate(`/video/${VideoID[index]}`)
+            mixpanel.track('video_clicked', {selected_video_title: Titles[index]})
+           }}
+          >
+           <img
+            style={{
+             width: '330px',
+             borderRadius: '10px'
+            }}
+            src={element}
+            alt="thumbnails"
+            className="browse-thumbnails"
+           />
+           <p className="duration">{Math.floor(duration[index] / 60) + ':' + (Math.round(duration[index] % 60) < 10 ? '0' + Math.round(duration[index] % 60) : Math.round(duration[index] % 60))}</p>
+
+           <div className={theme === true ? 'channel-basic-data' : 'channel-basic-data text-light-mode'}>
+            <div className="channel-pic">
+             <img className="channel-profile" src={ProfilePic[index]} alt="channel-profile" />
+            </div>
+            <div className="channel-text-data">
+             <p
+              className="title"
+              style={{
+               marginTop: '10px'
+              }}
+             >
+              {Titles[index] && Titles[index].length <= 60 ? Titles[index] : `${Titles[index].slice(0, 55)}..`}
+             </p>
+             <div className="video-uploader">
+              <p
+               className={theme ? 'uploader' : 'uploader text-light-mode2'}
+               style={{
+                marginTop: '10px'
+               }}
+              >
+               {uploader[index]}
+              </p>
+
+              <CheckCircleIcon
+               fontSize="100px"
+               style={{
+                color: 'rgb(138, 138, 138)',
+                marginTop: '8px',
+                marginLeft: '4px'
+               }}
+              />
+             </div>
+             <div className={theme ? 'view-time' : 'view-time text-light-mode2'}>
+              <p className="views">{VideoViews[index] >= 1e9 ? `${(VideoViews[index] / 1e9).toFixed(1)}B` : VideoViews[index] >= 1e6 ? `${(VideoViews[index] / 1e6).toFixed(1)}M` : VideoViews[index] >= 1e3 ? `${(VideoViews[index] / 1e3).toFixed(1)}K` : VideoViews[index]} views</p>
+              <p
+               className="upload-time"
+               style={{
+                marginLeft: '4px'
+               }}
+              >
+               &#x2022;{' '}
+               {(() => {
+                const timeDifference = new Date() - new Date(publishDate[index])
+                const minutes = Math.floor(timeDifference / 60000)
+                const hours = Math.floor(timeDifference / 3600000)
+                const days = Math.floor(timeDifference / 86400000)
+                const weeks = Math.floor(timeDifference / 604800000)
+                const years = Math.floor(timeDifference / 31536000000)
+                if (minutes < 1) {
+                 return 'just now'
+                } else if (minutes < 60) {
+                 return `${minutes} mins ago`
+                } else if (hours < 24) {
+                 return `${hours} hours ago`
+                } else if (days < 7) {
+                 return `${days} days ago`
+                } else if (weeks < 52) {
+                 return `${weeks} weeks ago`
+                } else {
+                 return `${years} years ago`
+                }
+               })()}
+              </p>
+             </div>
+            </div>
+           </div>
+          </div>
+         )
+        })}
+      </div>
+      <div
+       className="uploaded-videos2"
+       style={
+        menuClicked === true
+         ? {
+            paddingRight: '50px',
+            display: TagsSelected !== 'All' ? 'grid' : 'none'
+           }
+         : {
+            paddingRight: '0px',
+            display: TagsSelected !== 'All' ? 'grid' : 'none'
+           }
+       }
       >
-       Signup
-      </p>
+       {FilteredVideos &&
+        FilteredVideos.map((element, index) => {
+         return (
+          <div
+           className="video-data"
+           key={index}
+           style={
+            element.visibility === 'Public'
+             ? {
+                display: 'block'
+               }
+             : {
+                display: 'none'
+               }
+           }
+           onClick={() => {
+            if (user?.success) {
+             updateViews(element._id)
+             setTimeout(() => {
+              navigate(`/video/${element._id}`)
+             }, 400)
+            }
+            navigate(`/video/${element._id}`)
+           }}
+          >
+           <img
+            style={{
+             width: '330px',
+             borderRadius: '10px'
+            }}
+            src={element.thumbnailURL}
+            alt="thumbnails"
+            className="browse-thumbnails"
+           />
+           <p className="duration">{Math.floor(element.videoLength / 60) + ':' + (Math.round(element.videoLength % 60) < 10 ? '0' + Math.round(element.videoLength % 60) : Math.round(element.videoLength % 60))}</p>
+
+           <div className={theme === true ? 'channel-basic-data' : 'channel-basic-data text-light-mode'}>
+            <div className="channel-pic">
+             <img className="channel-profile" src={element.ChannelProfile} alt="channel-profile" />
+            </div>
+            <div className="channel-text-data">
+             <p
+              className="title"
+              style={{
+               marginTop: '10px'
+              }}
+             >
+              {element.Title}
+             </p>
+             <div className="video-uploader">
+              <p
+               className={theme ? 'uploader' : 'uploader text-light-mode2'}
+               style={{
+                marginTop: '10px'
+               }}
+              >
+               {element.uploader}
+              </p>
+
+              <CheckCircleIcon
+               fontSize="100px"
+               style={{
+                color: 'rgb(138, 138, 138)',
+                marginTop: '8px',
+                marginLeft: '4px'
+               }}
+              />
+             </div>
+             <div className={theme ? 'view-time' : 'view-time text-light-mode2'}>
+              <p className="views">{element.views >= 1e9 ? `${(element.views / 1e9).toFixed(1)}B` : element.views >= 1e6 ? `${(element.views / 1e6).toFixed(1)}M` : element.views >= 1e3 ? `${(element.views / 1e3).toFixed(1)}K` : element.views} views</p>
+              <p
+               className="upload-time"
+               style={{
+                marginLeft: '4px'
+               }}
+              >
+               &#x2022;{' '}
+               {(() => {
+                const timeDifference = new Date() - new Date(element.uploaded_date)
+                const minutes = Math.floor(timeDifference / 60000)
+                const hours = Math.floor(timeDifference / 3600000)
+                const days = Math.floor(timeDifference / 86400000)
+                const weeks = Math.floor(timeDifference / 604800000)
+                const years = Math.floor(timeDifference / 31536000000)
+                if (minutes < 1) {
+                 return 'just now'
+                } else if (minutes < 60) {
+                 return `${minutes} mins ago`
+                } else if (hours < 24) {
+                 return `${hours} hours ago`
+                } else if (days < 7) {
+                 return `${days} days ago`
+                } else if (weeks < 52) {
+                 return `${weeks} weeks ago`
+                } else {
+                 return `${years} years ago`
+                }
+               })()}
+              </p>
+             </div>
+            </div>
+           </div>
+          </div>
+         )
+        })}
+      </div>
      </div>
-    </div>
-   </div>
-   <div
-    className="ac-pop"
-    ref={profileRef}
-    style={
-     showPop === true
-      ? {
-         display: 'block'
-        }
-      : {
-         display: 'none'
-        }
-    }
-   >
-    <AccountPop />
-   </div>
-   <div
-    className={theme ? 'new-searchbar' : 'new-searchbar2'}
-    style={{
-     display: newSearch && window.innerWidth <= 940 ? 'flex' : 'none'
-    }}
-   >
-    <div
-     className="new-searchbar-component"
-     ref={searchRef}
-     style={{
-      display: newSearch && window.innerWidth <= 940 ? 'flex' : 'none'
-     }}
-    >
-     <FiSearch
-      fontSize="28px"
-      color="#aaa"
-      onClick={() => {
-       setNewSearch(true)
-      }}
-     />
-     <input
-      type="text"
-      name="search-content"
-      placeholder="Type to search"
-      className="extra-search"
-      value={data2 ? data2 : searchedData}
-      onChange={handleSearch}
-      // onKeyDown={handleKeyPress}
-     />
-     <RxCross1 fontSize="26px" color="#aaa" className="cancel-newsearch" onClick={() => setNewSearch(false)} />
     </div>
    </div>
   </>
  )
 }
-export default Navbar
+export default Browse

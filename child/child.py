@@ -1,7 +1,9 @@
 import json
+from logger import get_logger
+logger = get_logger()
 
 def childFunction():
-    print('hit')
+    logger.info("hit hit hit")
     with open('eslintLog.json', 'r') as file:
         data = json.load(file)
 

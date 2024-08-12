@@ -1,0 +1,57 @@
+[
+  {
+    "filePath": "C:\\Users\\rikip\\Desktop\\EXIM\\Work\\iterate-ai\\eslint\\samples\\correctTs.tsx",
+    "messages": [
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'React' is not defined.",
+        "line": 9,
+        "column": 12,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 9,
+        "endColumn": 17
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 1,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\rikip\\Desktop\\EXIM\\Work\\iterate-ai\\eslint\\samples\\watchlater.jsx",
+    "messages": [
+      {
+        "ruleId": null,
+        "nodeType": null,
+        "fatal": true,
+        "severity": 2,
+        "message": "Parsing error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?",
+        "line": 341,
+        "column": 5
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 1,
+    "fatalErrorCount": 1,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\rikip\\Desktop\\EXIM\\Work\\iterate-ai\\eslint\\samples\\wrong.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  }
+]
