@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
 import gzip
 import json
+import os
 
 app = Flask(__name__)
 
-LOG_FILE = 'logs.txt'
+LOG_FILE = 'logs.json'
 
 @app.route('/logs', methods=['POST'])
 def receive_logs():
@@ -14,10 +15,22 @@ def receive_logs():
         decompressed_data = gzip.decompress(compressed_data).decode('utf-8')
         logs = json.loads(decompressed_data)
 
-        # Write logs to file
-        with open(LOG_FILE, 'a') as f:
-            for log in logs:
-                f.write(json.dumps(log) + '\n')
+        # Load existing logs
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE, 'r') as f:
+                try:
+                    existing_logs = json.load(f)
+                except json.JSONDecodeError:
+                    existing_logs = []
+        else:
+            existing_logs = []
+
+        # Append new logs to the existing logs
+        existing_logs.extend(logs)
+
+        # Write back to the file
+        with open(LOG_FILE, 'w') as f:
+            json.dump(existing_logs, f, indent=4)
 
         return jsonify({"status": "success"}), 200
     except Exception as e:

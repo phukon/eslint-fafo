@@ -1,8 +1,8 @@
-import logging
+# import logging
 import json
 import requests
 import gzip
-from threading import Lock, Event
+from threading import Event
 from queue import Queue, Empty
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
@@ -18,14 +18,11 @@ class CustomLogger:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, name='my_app', api_endpoint='http://localhost:5000/logs', max_queue_size=1000, batch_size=100):
+    def __init__(self, api_endpoint='http://localhost:5000/logs', max_queue_size=1000, batch_size=100):
         if not hasattr(self, 'initialized'):
-            self.logger = logging.getLogger(name)
-            self.logger.setLevel(logging.DEBUG)
             self.api_endpoint = api_endpoint
             self.log_queue = Queue(maxsize=max_queue_size)
             self.batch_size = batch_size
-            self.lock = Lock()
             self.stop_event = Event()
             self.executor = ThreadPoolExecutor(max_workers=1)
             self.executor.submit(self._send_logs_worker)
@@ -64,13 +61,13 @@ class CustomLogger:
             print(f"Warning: Log queue is full. Discarding log: {log_entry}")
 
     def _send_logs_worker(self):
-        while not self.stop_event.is_set():  # Check stop event
+        while not self.stop_event.is_set():
             batch = []
             for _ in range(self.batch_size):
                 try:
                     log_entry = self.log_queue.get(block=True, timeout=1)
                     batch.append(log_entry)
-                except Empty:  # Use Empty from queue
+                except Empty:
                     break
 
             if batch:
@@ -94,6 +91,8 @@ class CustomLogger:
                 print(f"Failed to send logs to API. Status code: {response.status_code}")
         except Exception as e:
             print(f"Error sending logs to API: {str(e)}")
+
+# To stop the worker thread and process any remaining messages
     def flush(self):
         self.stop_event.set()  # Signal the worker to stop
         self.executor.shutdown(wait=True)

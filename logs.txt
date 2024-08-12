@@ -1,3 +1,0 @@
-"{\"level\": \"INFO\", \"message\": \"Starting child function\", \"message_id\": \"rikriki\"}"
-"{\"level\": \"INFO\", \"message\": \"hit hit hit\", \"message_id\": \"rikriki\"}"
-"{\"level\": \"INFO\", \"message\": \"Finished child function\", \"message_id\": \"rikriki\"}"
