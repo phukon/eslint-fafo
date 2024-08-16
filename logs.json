@@ -1,14 +1,3 @@
 [
-    "{\"level\": \"INFO\", \"message\": \"Starting child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"hit hit hit\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Finished child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Starting child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"hit hit hit\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Finished child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Starting child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"hit hit hit\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Finished child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Starting child function\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"hit hit hit\", \"message_id\": \"rikriki\"}",
-    "{\"level\": \"INFO\", \"message\": \"Finished child function\", \"message_id\": \"rikriki\"}"
+    "{\"level\": \"INFO\", \"message\": \"lol\", \"message_id\": \"rikriki\", \"timestamp\": \"2024-08-16T07:08:26.704493\", \"extra\": {\"reranked_desc_filtered_file_contents\": 2343, \"reranked_code_filtered_file_contents\": 324, \"mapping\": 23423}}"
 ]
